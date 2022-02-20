@@ -1,0 +1,75 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: >-
+  Subscriber for error logs
+
+Transform:
+  - AWS::Serverless-2016-10-31
+
+Parameters:
+  Environment:
+    Type: String
+    Default: prod
+    AllowedValues:
+      - prod
+      - test
+    Description: Environment for deploy
+  PhoneNumber:
+    Type: String
+    Description: Phone number to receive error messages
+
+Mappings:
+  EnvironmentMap:
+    prod:
+      smsApiKeyName: sms-qu-ApiAp-0vvm2O9lZAEs
+      smsApiUrl: https://sms-queue-api.dbowland.com/v1
+    test:
+      smsApiKeyName: sms-qu-ApiAp-3Ox0KVJulSZ0
+      smsApiUrl: https://sms-queue-api.bowland.link/v1
+
+Resources:
+  # Lambda
+
+  LogGroupSubscriber:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: Processes error messages from log groups
+      Runtime: nodejs14.x
+      Architectures:
+        - x86_64
+      Handler: handlers/log-group-processor.logGroupProcessorHandler
+      CodeUri: './dist'
+      Environment:
+        Variables:
+          SMS_API_KEY_NAME: !FindInMap [EnvironmentMap, !Ref Environment, smsApiKeyName]
+          SMS_API_URL: !FindInMap [EnvironmentMap, !Ref Environment, smsApiUrl]
+          SMS_TO_PHONE_NUMBER: !Ref PhoneNumber
+      MemorySize: 128
+      Timeout: 60
+      Policies:
+        # Give Lambda basic execution Permission
+        - AWSLambdaBasicExecutionRole
+        # Grant access to API key values
+        - Version: 2012-10-17
+          Statement:
+            - Action:
+                - 'apigateway:GET'
+              Effect: Allow
+              Resource: 'arn:aws:apigateway:us-east-1::/apikeys'
+
+  CloudWatchLambdaInvokePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: 'lambda:InvokeFunction'
+      FunctionName: !Sub '${LogGroupSubscriber.Arn}'
+      Principal: !Sub 'logs.${AWS::Region}.amazonaws.com'
+      SourceAccount: !Ref AWS::AccountId
+      SourceArn: !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:*:*'
+
+  # CloudWatch
+
+  LogGroupLambdaLogGroup:
+    Type: AWS::Logs::LogGroup
+    DependsOn: [LogGroupSubscriber]
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${LogGroupSubscriber}
+      RetentionInDays: 30
