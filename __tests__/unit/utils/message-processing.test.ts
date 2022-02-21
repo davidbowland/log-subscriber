@@ -1,7 +1,7 @@
 import { data } from '../__mocks__'
 import eventJson from '@events/event-subscription.json'
 import { CloudWatchLogsEvent } from '@types'
-import { extractMessageFromData, getDataFromRecord } from '@utils/message-processing'
+import { extractLevelFromData, extractMessageFromData, getDataFromRecord } from '@utils/message-processing'
 
 describe('message-processing', () => {
   describe('getDataFromRecord', () => {
@@ -15,6 +15,13 @@ describe('message-processing', () => {
     test('expect exception on failed gzip', async () => {
       const badZip = Buffer.from('this is a bad zip').toString('base64')
       await expect(getDataFromRecord({ awslogs: { data: badZip } })).rejects.toBeDefined()
+    })
+  })
+
+  describe('extractLevelFromData', () => {
+    test('expect message extracted from line', async () => {
+      const result = extractLevelFromData(data)
+      expect(result).toEqual('ERROR')
     })
   })
 
