@@ -24,11 +24,9 @@ Mappings:
   EnvironmentMap:
     prod:
       project: log-subscriber
-      smsApiKeyName: sms-qu-ApiAp-0vvm2O9lZAEs
       smsApiUrl: https://sms-queue-api.dbowland.com/v1
     test:
       project: log-subscriber-test
-      smsApiKeyName: sms-qu-ApiAp-3Ox0KVJulSZ0
       smsApiUrl: https://sms-queue-api.bowland.link/v1
 
 Resources:
