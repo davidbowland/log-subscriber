@@ -19,10 +19,10 @@
     "clean": "rm -rf dist coverage && NODE_ENV=test npm ci",
     "deploy": "npm run build && ./scripts/deploy.sh",
     "lint": "prettier --write . && eslint --fix . --resolve-plugins-relative-to .",
-    "prepare": "if [ \"$HUSKY\" != \"0\" ]; then husky install ; fi",
+    "prepare": "if [ \"$NODE_ENV\" != \"production\" ]; then husky install ; fi",
     "start": "npm run build && npm run quick-start",
-    "quick-start": "tsc && HUSKY=0 sam build && sam local invoke --event events/event-subscription.json",
-    "test": "npm run lint && jest --colors"
+    "quick-start": "tsc && ./scripts/runLocal.sh",
+    "test": "jest --colors"
   },
   "lint-staged": {
     "**/*.{js,jsx,ts,tsx}": [

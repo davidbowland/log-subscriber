@@ -16,6 +16,9 @@ Parameters:
   PhoneNumber:
     Type: String
     Description: Phone number to receive error messages
+  SmsApiKey:
+    Type: String
+    Description: API key for sms-queue-api
 
 Mappings:
   EnvironmentMap:
@@ -41,7 +44,7 @@ Resources:
       CodeUri: './dist'
       Environment:
         Variables:
-          SMS_API_KEY_NAME: !FindInMap [EnvironmentMap, !Ref Environment, smsApiKeyName]
+          SMS_API_KEY: !Ref SmsApiKey
           SMS_API_URL: !FindInMap [EnvironmentMap, !Ref Environment, smsApiUrl]
           SMS_TO_PHONE_NUMBER: !Ref PhoneNumber
       FunctionName: !FindInMap [EnvironmentMap, !Ref Environment, project]
