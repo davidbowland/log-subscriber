@@ -1,7 +1,7 @@
+import { extractLevelFromData, extractMessageFromData, getDataFromRecord } from '@utils/message-processing'
+import { CloudWatchLogsEvent } from '@types'
 import { data } from '../__mocks__'
 import eventJson from '@events/event-subscription.json'
-import { CloudWatchLogsEvent } from '@types'
-import { extractLevelFromData, extractMessageFromData, getDataFromRecord } from '@utils/message-processing'
 
 describe('message-processing', () => {
   describe('getDataFromRecord', () => {

@@ -1,6 +1,6 @@
+import { rest, server } from '@setup-server'
 import { smsApiKey, smsApiUrl, smsToPhoneNumber } from '@config'
 import { sendSms } from '@services/queue'
-import { rest, server } from '@setup-server'
 
 describe('queue', () => {
   describe('sendSms', () => {
@@ -23,9 +23,9 @@ describe('queue', () => {
     test('expect sms contents to be passed to the endpoint', async () => {
       await sendSms(contents)
       expect(postEndpoint).toHaveBeenCalledWith({
-        to: smsToPhoneNumber,
         contents,
         messageType: 'TRANSACTIONAL',
+        to: smsToPhoneNumber,
       })
     })
   })

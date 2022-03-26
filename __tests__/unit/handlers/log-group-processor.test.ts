@@ -1,12 +1,12 @@
 import { mocked } from 'jest-mock'
 
+import * as logging from '@utils/logging'
+import * as messageProcessing from '@utils/message-processing'
+import * as queue from '@services/queue'
+import { CloudWatchLogsEvent } from '@types'
 import { data } from '../__mocks__'
 import eventJson from '@events/event-subscription.json'
 import { logGroupProcessorHandler } from '@handlers/log-group-processor'
-import * as queue from '@services/queue'
-import { CloudWatchLogsEvent } from '@types'
-import * as logging from '@utils/logging'
-import * as messageProcessing from '@utils/message-processing'
 
 jest.mock('@services/queue')
 jest.mock('@utils/logging')

@@ -1,5 +1,6 @@
-import { CloudWatchLogsDecodedData, CloudWatchLogsEvent } from '../types'
 import { gunzip } from 'zlib'
+
+import { CloudWatchLogsDecodedData, CloudWatchLogsEvent } from '../types'
 
 /* Body */
 
