@@ -5,6 +5,7 @@ import { SMSMessage } from '../types'
 
 const api = axios.create({
   baseURL: smsApiUrl,
+  headers: { 'x-api-key': smsApiKey },
 })
 
 /* Emails */
@@ -17,9 +18,4 @@ const convertContentsToJson = (contents: string): SMSMessage => ({
 
 export const sendSms = (contents: string): Promise<AxiosResponse> => exports.sendRawSms(convertContentsToJson(contents))
 
-export const sendRawSms = (body: SMSMessage): Promise<AxiosResponse> =>
-  api.post('/messages', body, {
-    headers: {
-      'x-api-key': smsApiKey,
-    },
-  })
+export const sendRawSms = (body: SMSMessage): Promise<AxiosResponse> => api.post('/messages', body, {})
