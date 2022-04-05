@@ -20,7 +20,7 @@ export NODE_ENV=production
 SAM_TEMPLATE=template.yaml
 sam build --template ${SAM_TEMPLATE}
 
-# Start the API locally
+# Start the service locally
 export SMS_API_KEY=$(aws apigateway get-api-key --api-key l3q9ffyih6 --include-value --region us-east-1 | jq -r .value)
 export SMS_API_URL='https://sms-queue-api.bowland.link/v1'
-sam local invoke --event events/event-subscription.json --parameter-overrides "Environment=test PhoneNumber=$PHONE_NUMBER SmsApiKey=$SMS_API_KEY"
+sam local invoke --event events/event-subscription.json --parameter-overrides "Environment=test PhoneNumber=$PHONE_NUMBER SmsApiKey=$SMS_API_KEY" --log-file local.log
