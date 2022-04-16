@@ -51,6 +51,10 @@ Resources:
         # Give Lambda basic execution Permission
         - AWSLambdaBasicExecutionRole
       Runtime: nodejs14.x
+      Tags:
+        'created-by': 'log-subscriber'
+        'created-for': 'dbowland'
+        'environment': !Ref Environment
       Timeout: 60
 
   CloudWatchLambdaInvokePermission:
@@ -70,3 +74,10 @@ Resources:
     Properties:
       LogGroupName: !Sub /aws/lambda/${LogGroupSubscriber}
       RetentionInDays: 30
+      Tags:
+        - Key: 'created-by'
+          Value: 'log-subscriber'
+        - Key: 'created-for'
+          Value: 'dbowland'
+        - Key: 'environment'
+          Value: !Ref Environment
