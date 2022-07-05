@@ -2,7 +2,7 @@
   "name": "log-subscriber",
   "author": "David Bowland",
   "description": "Lambda that subscribes to CloudWatch Log Group errors and forwards to SMS",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "engines": {
     "node": "^16.0.0"
   },
