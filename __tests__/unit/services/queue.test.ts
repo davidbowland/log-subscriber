@@ -2,6 +2,8 @@ import { rest, server } from '@setup-server'
 import { smsApiKey, smsApiUrl, smsToPhoneNumber } from '@config'
 import { sendSms } from '@services/queue'
 
+jest.mock('@utils/logging')
+
 describe('queue', () => {
   describe('sendSms', () => {
     const contents = 'Hello, Goodbye!'

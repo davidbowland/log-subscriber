@@ -2,7 +2,9 @@ import axios, { AxiosResponse } from 'axios'
 
 import { smsApiKey, smsApiUrl, smsToPhoneNumber } from '../config'
 import { SMSMessage } from '../types'
+import { xrayCaptureHttps } from '../utils/logging'
 
+xrayCaptureHttps()
 const api = axios.create({
   baseURL: smsApiUrl,
   headers: { 'x-api-key': smsApiKey },

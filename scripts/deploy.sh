@@ -15,7 +15,7 @@ fi
 # Build from template
 
 SAM_TEMPLATE=template.yaml
-sam build --template ${SAM_TEMPLATE} --use-container
+sam build --template ${SAM_TEMPLATE} --use-container -e NODE_ENV=production
 
 # Deploy build lambda to east-1
 

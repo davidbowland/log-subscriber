@@ -56,6 +56,7 @@ Resources:
         'created-for': 'dbowland'
         'environment': !Ref Environment
       Timeout: 60
+      Tracing: Active
 
   CloudWatchLambdaInvokePermission:
     Type: AWS::Lambda::Permission

@@ -1,4 +1,9 @@
-import { log, logError } from '@utils/logging'
+import * as AWSXRay from 'aws-xray-sdk-core'
+import { log, logError, xrayCaptureHttps } from '@utils/logging'
+import https from 'https'
+import { mocked } from 'jest-mock'
+
+jest.mock('aws-xray-sdk-core')
 
 describe('logging', () => {
   const consoleError = console.error
@@ -17,10 +22,10 @@ describe('logging', () => {
   describe('log', () => {
     test.each(['Hello', 0, null, undefined, { a: 1, b: 2 }])(
       'expect logFunc to have been called with message',
-      (value) => {
+      async (value) => {
         const message = `Log message for value ${JSON.stringify(value)}`
 
-        log(message)
+        await log(message)
         expect(console.log).toHaveBeenCalledWith(message)
       }
     )
@@ -29,13 +34,27 @@ describe('logging', () => {
   describe('logError', () => {
     test.each(['Hello', 0, null, undefined, { a: 1, b: 2 }])(
       'expect logFunc to have been called with message',
-      (value) => {
+      async (value) => {
         const message = `Error message for value ${JSON.stringify(value)}`
         const error = new Error(message)
 
-        logError(error)
+        await logError(error)
         expect(console.error).toHaveBeenCalledWith(error)
       }
     )
+  })
+
+  describe('xrayCaptureHttps', () => {
+    test('expect AWSXRay.captureHTTPsGlobal when x-ray is enabled (not running locally)', () => {
+      process.env.AWS_SAM_LOCAL = 'false'
+      xrayCaptureHttps()
+      expect(mocked(AWSXRay).captureHTTPsGlobal).toHaveBeenCalledWith(https)
+    })
+
+    test('expect same object when x-ray is disabled (running locally)', () => {
+      process.env.AWS_SAM_LOCAL = 'true'
+      xrayCaptureHttps()
+      expect(mocked(AWSXRay).captureHTTPsGlobal).toHaveBeenCalledTimes(0)
+    })
   })
 })
