@@ -11,7 +11,8 @@ export const getDataFromRecord = (event: CloudWatchLogsEvent): Promise<CloudWatc
   )
 }
 
-export const extractLevelFromData = (data: CloudWatchLogsDecodedData): string => data.logEvents[0].extractedFields.level
+export const extractLevelFromData = (data: CloudWatchLogsDecodedData): string =>
+  data.logEvents[0].extractedFields?.level as string
 
 export const extractMessageFromData = (data: CloudWatchLogsDecodedData): string =>
-  data.logEvents[0].extractedFields.message
+  data.logEvents[0].extractedFields?.message as string
