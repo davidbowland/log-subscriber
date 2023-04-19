@@ -9,11 +9,13 @@ describe('message-processing', () => {
 
     test('expect data extracted from event', async () => {
       const result = await getDataFromRecord(event)
+
       expect(result).toEqual(data)
     })
 
     test('expect exception on failed gzip', async () => {
       const badZip = Buffer.from('this is a bad zip').toString('base64')
+
       await expect(getDataFromRecord({ awslogs: { data: badZip } })).rejects.toBeDefined()
     })
   })
@@ -21,6 +23,7 @@ describe('message-processing', () => {
   describe('extractLevelFromData', () => {
     test('expect message extracted from line', async () => {
       const result = extractLevelFromData(data)
+
       expect(result).toEqual('ERROR')
     })
   })
@@ -28,6 +31,7 @@ describe('message-processing', () => {
   describe('extractMessageFromData', () => {
     test('expect message extracted from line', async () => {
       const result = extractMessageFromData(data)
+
       expect(result).toEqual('testing!')
     })
   })

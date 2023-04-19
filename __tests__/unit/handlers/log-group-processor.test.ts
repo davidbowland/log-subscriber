@@ -28,6 +28,7 @@ describe('log-group-processor', () => {
 
     test('expect sendSms to be called for each record', async () => {
       await logGroupProcessorHandler(event, undefined, undefined)
+
       expect(mocked(queue).sendSms).toHaveBeenCalledWith(
         '/aws/lambda/jokes-api-test-GetRandomFunction-PrtSiiAcVAeL ERROR: testing!'
       )
@@ -36,6 +37,7 @@ describe('log-group-processor', () => {
     test('expect snsPayloadProcessorHandler to not fail when sendSms fails', async () => {
       mocked(queue).sendSms.mockRejectedValueOnce('fnord')
       await logGroupProcessorHandler(event, undefined, undefined)
+
       expect(mocked(logging).logError).toHaveBeenCalledWith('fnord')
     })
   })
