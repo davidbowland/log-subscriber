@@ -32,9 +32,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout latest code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: Install Node 18
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: 18.x
       - name: Install and audit packages
@@ -51,13 +51,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout latest code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
+      - name: Install Python 3
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.8
+      - name: Install AWS SAM
+        uses: aws-actions/setup-sam@v2
+
       - name: Install Node 18
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: 18.x
-      - uses: actions/setup-python@v2
-      - uses: aws-actions/setup-sam@v1
       - name: Build TypeScript into Lambda
         run: npm run build
         env:
@@ -65,7 +70,7 @@ jobs:
       - run: sam build --template ${SAM_TEMPLATE} --use-container --container-env-var NODE_ENV=production
 
       - name: Assume the testing pipeline user role
-        uses: aws-actions/configure-aws-credentials@v1
+        uses: aws-actions/configure-aws-credentials@v1-node16
         with:
           aws-access-key-id: ${{ env.PIPELINE_USER_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ env.PIPELINE_USER_SECRET_ACCESS_KEY }}
@@ -105,14 +110,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout latest code
-        uses: actions/checkout@v2
-      - name: Install Node 8
-        uses: actions/setup-node@v2
+        uses: actions/checkout@v4
+      - name: Install Python 3
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.8
+      - name: Install AWS SAM
+        uses: aws-actions/setup-sam@v2
+
+      - name: Install Node 18
+        uses: actions/setup-node@v3
         with:
           node-version: 18.x
-      - uses: actions/setup-python@v2
-      - uses: aws-actions/setup-sam@v1
-
       - name: Build resources
         run: |
           npm run build
@@ -121,7 +130,7 @@ jobs:
           HUSKY: 0
 
       - name: Assume the testing pipeline user role
-        uses: aws-actions/configure-aws-credentials@v1
+        uses: aws-actions/configure-aws-credentials@v1-node16
         with:
           aws-access-key-id: ${{ env.PIPELINE_USER_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ env.PIPELINE_USER_SECRET_ACCESS_KEY }}
@@ -138,7 +147,7 @@ jobs:
             --s3-prefix log-subscriber-test \
             --region ${TESTING_REGION} \
             --output-template-file packaged-testing-east-1.yaml
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: packaged-testing-east-1.yaml
           path: packaged-testing-east-1.yaml
@@ -172,7 +181,8 @@ jobs:
             --s3-prefix log-subscriber \
             --region ${PROD_REGION} \
             --output-template-file packaged-prod-east-1.yaml
-      - uses: actions/upload-artifact@v2
+
+      - uses: actions/upload-artifact@v3
         with:
           name: packaged-prod-east-1.yaml
           path: packaged-prod-east-1.yaml
@@ -195,18 +205,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout latest code
-        uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
-      - uses: aws-actions/setup-sam@v1
-      - uses: actions/download-artifact@v2
+        uses: actions/checkout@v4
+      - name: Install Python 3
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.8
+      - name: Install AWS SAM
+        uses: aws-actions/setup-sam@v2
+      - uses: actions/download-artifact@v3
         with:
           name: packaged-testing-east-1.yaml
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
           name: packaged-testing-east-2.yaml
 
       - name: Assume the testing pipeline user role
-        uses: aws-actions/configure-aws-credentials@v1
+        uses: aws-actions/configure-aws-credentials@v1-node16
         with:
           aws-access-key-id: ${{ env.PIPELINE_USER_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ env.PIPELINE_USER_SECRET_ACCESS_KEY }}
@@ -246,18 +260,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout latest code
-        uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
-      - uses: aws-actions/setup-sam@v1
-      - uses: actions/download-artifact@v2
+        uses: actions/checkout@v4
+      - name: Install Python 3
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.8
+      - name: Install AWS SAM
+        uses: aws-actions/setup-sam@v2
+      - uses: actions/download-artifact@v3
         with:
           name: packaged-prod-east-1.yaml
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
           name: packaged-prod-east-2.yaml
 
       - name: Assume the prod pipeline user role
-        uses: aws-actions/configure-aws-credentials@v1
+        uses: aws-actions/configure-aws-credentials@v1-node16
         with:
           aws-access-key-id: ${{ env.PIPELINE_USER_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ env.PIPELINE_USER_SECRET_ACCESS_KEY }}
@@ -296,9 +314,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout latest code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: Install Node 18
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: 18.x
       - name: Set git name and email
