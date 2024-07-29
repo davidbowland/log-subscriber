@@ -15,13 +15,11 @@
   },
   "homepage": "https://github.com/davidbowland/log-subscriber#readme",
   "scripts": {
-    "build": "npm run clean && tsc && cp package*.json dist/ && cd dist/ && HUSKY=0 NODE_ENV=production npm ci",
-    "clean": "rm -rf dist coverage && NODE_ENV=test npm ci",
-    "deploy": "npm run build && ./scripts/deploy.sh",
+    "clean": "rm -rf .aws-sam coverage && NODE_ENV=test npm ci",
+    "deploy": "NODE_ENV=production npm ci && ./scripts/deploy.sh",
     "lint": "prettier --write . && eslint --fix .",
     "prepare": "husky",
-    "start": "npm run build && npm run quick-start",
-    "quick-start": "tsc && ./scripts/runLocal.sh",
+    "start": "./scripts/runLocal.sh",
     "test": "jest --colors",
     "typecheck": "tsc --noEmit",
     "update": "ncu --doctor --target minor --upgrade && npm audit fix --audit-level=none && npm run test && npm dedupe"
@@ -30,6 +28,8 @@
     "aws-xray-sdk-core": "^3.5.3",
     "axios": "^1.6.5",
     "axios-retry": "^3.9.1",
+    "core-js": "^3.37.1",
+    "esbuild": "^0.23.0",
     "husky": "^9.1.3"
   },
   "devDependencies": {
