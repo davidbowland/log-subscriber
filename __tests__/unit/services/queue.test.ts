@@ -1,4 +1,4 @@
-import { rest, server } from '@setup-server'
+import { http, HttpResponse, server } from '@setup-server'
 import { smsApiKey, smsApiUrl, smsToPhoneNumber } from '@config'
 import { sendSms } from '@services/queue'
 
@@ -11,13 +11,13 @@ describe('queue', () => {
 
     beforeAll(() => {
       server.use(
-        rest.post(`${smsApiUrl}/messages`, async (req, res, ctx) => {
-          if (smsApiKey != req.headers.get('x-api-key')) {
-            return res(ctx.status(403))
+        http.post(`${smsApiUrl}/messages`, async ({ request }) => {
+          if (smsApiKey != request.headers.get('x-api-key')) {
+            return new HttpResponse(JSON.stringify({ message: 'Invalid API key' }), { status: 403 })
           }
 
-          const body = postEndpoint(req.body)
-          return res(body ? ctx.json(body) : ctx.status(400))
+          const body = postEndpoint(await request.json())
+          return body ? HttpResponse.json(body) : new HttpResponse(null, { status: 400 })
         })
       )
     })
