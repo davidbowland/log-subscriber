@@ -18,6 +18,6 @@ const convertContentsToJson = (contents: string): SMSMessage => ({
   to: smsToPhoneNumber,
 })
 
-export const sendSms = (contents: string): Promise<AxiosResponse> => exports.sendRawSms(convertContentsToJson(contents))
+const sendRawSms = (body: SMSMessage): Promise<AxiosResponse> => api.post('/messages', body, {})
 
-export const sendRawSms = (body: SMSMessage): Promise<AxiosResponse> => api.post('/messages', body, {})
+export const sendSms = (contents: string): Promise<AxiosResponse> => sendRawSms(convertContentsToJson(contents))
