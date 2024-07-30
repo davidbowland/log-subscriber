@@ -46,7 +46,7 @@ jobs:
 
   build-and-deploy-feature:
     name: Deploy feature branch
-    if: startsWith(github.ref, 'refs/heads/feature')
+    if: github.ref != 'refs/heads/master'
     needs: [test]
     runs-on: ubuntu-latest
     steps:
