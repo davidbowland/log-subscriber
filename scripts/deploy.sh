@@ -40,4 +40,4 @@ sam deploy --stack-name ${TESTING_STACK_NAME} \
            --s3-prefix log-subscriber-test \
            --no-fail-on-empty-changeset \
            --role-arn ${TESTING_CLOUDFORMATION_EXECUTION_ROLE} \
-           --parameter-overrides "Environment=test PhoneNumber=$PHONE_NUMBER"
+           --parameter-overrides "Environment=test PhoneNumber=$PHONE_NUMBER SmsApiKey=$SMS_API_KEY"

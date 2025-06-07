@@ -1,4 +1,5 @@
 import { http, HttpResponse, server } from '@setup-server'
+
 import { smsApiKey, smsApiUrl, smsToPhoneNumber } from '@config'
 import { sendSms } from '@services/queue'
 
@@ -18,11 +19,11 @@ describe('queue', () => {
 
           const body = postEndpoint(await request.json())
           return body ? HttpResponse.json(body) : new HttpResponse(null, { status: 400 })
-        })
+        }),
       )
     })
 
-    test('expect sms contents to be passed to the endpoint', async () => {
+    it('should pass sms contents to the endpoint', async () => {
       await sendSms(contents)
 
       expect(postEndpoint).toHaveBeenCalledWith({

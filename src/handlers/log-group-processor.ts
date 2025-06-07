@@ -1,7 +1,7 @@
-import { CloudWatchLogsEvent, CloudWatchLogsHandler } from '../types'
-import { extractLevelFromData, extractMessageFromData, getDataFromRecord } from '../utils/message-processing'
-import { log, logError } from '../utils/logging'
 import { sendSms } from '../services/queue'
+import { CloudWatchLogsEvent, CloudWatchLogsHandler } from '../types'
+import { log, logError } from '../utils/logging'
+import { extractLevelFromData, extractMessageFromData, getDataFromRecord } from '../utils/message-processing'
 
 /* Log group subscription processing */
 

@@ -49,7 +49,7 @@ Resources:
       Policies:
         # Give Lambda basic execution Permission
         - AWSLambdaBasicExecutionRole
-      Runtime: nodejs20.x
+      Runtime: nodejs22.x
       Tags:
         'created-by': 'log-subscriber'
         'created-for': 'dbowland'
