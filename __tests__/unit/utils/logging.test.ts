@@ -1,6 +1,5 @@
 import * as AWSXRay from 'aws-xray-sdk-core'
 import https from 'https'
-import { mocked } from 'jest-mock'
 
 import { log, logError, xrayCaptureHttps } from '@utils/logging'
 
@@ -42,14 +41,14 @@ describe('logging', () => {
       process.env.AWS_SAM_LOCAL = 'false'
       xrayCaptureHttps()
 
-      expect(mocked(AWSXRay).captureHTTPsGlobal).toHaveBeenCalledWith(https)
+      expect(AWSXRay.captureHTTPsGlobal).toHaveBeenCalledWith(https)
     })
 
     it('should not call captureHTTPsGlobal when running locally', () => {
       process.env.AWS_SAM_LOCAL = 'true'
       xrayCaptureHttps()
 
-      expect(mocked(AWSXRay).captureHTTPsGlobal).toHaveBeenCalledTimes(0)
+      expect(AWSXRay.captureHTTPsGlobal).toHaveBeenCalledTimes(0)
     })
   })
 })

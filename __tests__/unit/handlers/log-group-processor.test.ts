@@ -1,5 +1,3 @@
-import { mocked } from 'jest-mock'
-
 import { data } from '../__mocks__'
 import eventJson from '@events/event-subscription.json'
 import { logGroupProcessorHandler } from '@handlers/log-group-processor'
@@ -14,31 +12,31 @@ jest.mock('@utils/message-processing')
 
 describe('log-group-processor', () => {
   beforeAll(() => {
-    mocked(logging).log.mockReturnValue(undefined)
-    mocked(messageProcessing).getDataFromRecord.mockResolvedValue(data)
-    mocked(messageProcessing).extractLevelFromData.mockReturnValue('ERROR')
-    mocked(messageProcessing).extractMessageFromData.mockReturnValue('testing!')
+    jest.mocked(logging).log.mockReturnValue(undefined)
+    jest.mocked(messageProcessing).getDataFromRecord.mockResolvedValue(data)
+    jest.mocked(messageProcessing).extractLevelFromData.mockReturnValue('ERROR')
+    jest.mocked(messageProcessing).extractMessageFromData.mockReturnValue('testing!')
   })
 
   describe('logGroupProcessorHandler', () => {
     const event = eventJson as undefined as CloudWatchLogsEvent
     beforeAll(() => {
-      mocked(queue).sendSms.mockResolvedValue(undefined)
+      jest.mocked(queue).sendSms.mockResolvedValue(undefined)
     })
 
     it('should call sendSms for each record', async () => {
       await logGroupProcessorHandler(event, undefined, undefined)
 
-      expect(mocked(queue).sendSms).toHaveBeenCalledWith(
+      expect(queue.sendSms).toHaveBeenCalledWith(
         '/aws/lambda/jokes-api-test-GetRandomFunction-PrtSiiAcVAeL ERROR: testing!',
       )
     })
 
     it('should not fail when sendSms fails', async () => {
-      mocked(queue).sendSms.mockRejectedValueOnce('fnord')
+      jest.mocked(queue).sendSms.mockRejectedValueOnce('fnord')
       await logGroupProcessorHandler(event, undefined, undefined)
 
-      expect(mocked(logging).logError).toHaveBeenCalledWith('fnord')
+      expect(logging.logError).toHaveBeenCalledWith('fnord')
     })
   })
 })
