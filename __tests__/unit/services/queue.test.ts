@@ -32,5 +32,16 @@ describe('queue', () => {
         to: smsToPhoneNumber,
       })
     })
+
+    it('truncates contents to 600 characters', async () => {
+      const longContents = 'a'.repeat(1000)
+      await sendSms(longContents)
+
+      expect(postEndpoint).toHaveBeenCalledWith({
+        contents: longContents.slice(0, 600),
+        messageType: 'TRANSACTIONAL',
+        to: smsToPhoneNumber,
+      })
+    })
   })
 })

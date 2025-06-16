@@ -13,7 +13,7 @@ const api = axios.create({
 /* Emails */
 
 const convertContentsToJson = (contents: string): SMSMessage => ({
-  contents,
+  contents: contents.slice(0, 600), // Pinpoint restricts SMS to 600 non-GSM characters and we have to make assumptions
   messageType: 'TRANSACTIONAL',
   to: smsToPhoneNumber,
 })
