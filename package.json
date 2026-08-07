@@ -2,7 +2,7 @@
   "name": "log-subscriber",
   "author": "David Bowland",
   "description": "Lambda that subscribes to CloudWatch Log Group errors and forwards to email",
-  "version": "1.16.0",
+  "version": "1.17.0",
   "engines": {
     "node": "^24.0.0"
   },
