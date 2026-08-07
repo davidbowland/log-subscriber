@@ -1,12 +1,10 @@
-import axios from 'axios'
-import axiosRetry from 'axios-retry'
+// Emails Queue API
 
-// Axios
+export const emailsQueueApiBaseUrl = process.env.EMAILS_QUEUE_API_BASE_URL as string
+export const ssmEmailApiKeyPath = process.env.SSM_EMAIL_API_KEY_PATH as string
+export const ssmEmailFromAddressPath = process.env.SSM_EMAIL_FROM_ADDRESS_PATH as string
+export const ssmEmailToAddressPath = process.env.SSM_EMAIL_TO_ADDRESS_PATH as string
 
-axiosRetry(axios, { retries: 3 })
+// AWS
 
-// SMS Queue API
-
-export const smsApiKey = process.env.SMS_API_KEY as string
-export const smsApiUrl = process.env.SMS_API_URL as string
-export const smsToPhoneNumber = process.env.SMS_TO_PHONE_NUMBER as string
+export const region = process.env.AWS_REGION as string

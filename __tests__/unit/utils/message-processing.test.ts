@@ -1,7 +1,7 @@
-import { data } from '../__mocks__'
+import { data, extractedEvents, multiEventData, multipleExtractedEvents } from '../__mocks__'
 import eventJson from '@events/event-subscription.json'
 import { CloudWatchLogsEvent } from '@types'
-import { extractLevelFromData, extractMessageFromData, getDataFromRecord } from '@utils/message-processing'
+import { extractEventsFromData, getDataFromRecord } from '@utils/message-processing'
 
 describe('message-processing', () => {
   describe('getDataFromRecord', () => {
@@ -20,19 +20,39 @@ describe('message-processing', () => {
     })
   })
 
-  describe('extractLevelFromData', () => {
-    it('should extract level from data', async () => {
-      const result = extractLevelFromData(data)
+  describe('extractEventsFromData', () => {
+    it('should extract the event from data', async () => {
+      const result = extractEventsFromData(data)
 
-      expect(result).toEqual('ERROR')
+      expect(result).toEqual(extractedEvents)
     })
-  })
 
-  describe('extractMessageFromData', () => {
-    it('should extract message from data', async () => {
-      const result = extractMessageFromData(data)
+    it('should extract every event in a batch', async () => {
+      const result = extractEventsFromData(multiEventData)
 
-      expect(result).toEqual('testing!')
+      expect(result).toEqual(multipleExtractedEvents)
+    })
+
+    // CloudWatch emits these whenever a subscription filter is created. They carry no
+    // extractedFields, and without the fallback the alert body rendered the string "undefined".
+    it('should fall back to the raw message when extractedFields is absent', () => {
+      const result = extractEventsFromData({
+        ...data,
+        logEvents: [{ id: 'fnord', message: 'CWL CONTROL MESSAGE: Checking health', timestamp: 1645345279884 }],
+      } as unknown as typeof data)
+
+      expect(result).toEqual([
+        { id: 'fnord', level: 'ERROR', message: 'CWL CONTROL MESSAGE: Checking health', timestamp: 1645345279884 },
+      ])
+    })
+
+    it('should fall back to an empty message when neither extractedFields nor message is present', () => {
+      const result = extractEventsFromData({
+        ...data,
+        logEvents: [{ id: 'fnord', timestamp: 1645345279884 }],
+      } as unknown as typeof data)
+
+      expect(result).toEqual([{ id: 'fnord', level: 'ERROR', message: '', timestamp: 1645345279884 }])
     })
   })
 })

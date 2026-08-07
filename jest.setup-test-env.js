@@ -1,5 +1,10 @@
-// Pinpoint
+// AWS
 
-process.env.SMS_API_KEY = '3edfgr4ertyjkijhg8'
-process.env.SMS_API_URL = 'https://sms-api.dbowland.com/v1'
-process.env.SMS_TO_PHONE_NUMBER = '+15551234567'
+process.env.AWS_REGION = 'us-east-2'
+
+// Emails Queue API
+
+process.env.EMAILS_QUEUE_API_BASE_URL = 'https://emails-queue-api.bowland.link'
+process.env.SSM_EMAIL_API_KEY_PATH = '/log-subscriber-test/email-api-key'
+process.env.SSM_EMAIL_FROM_ADDRESS_PATH = '/log-subscriber-test/email-from-address'
+process.env.SSM_EMAIL_TO_ADDRESS_PATH = '/log-subscriber-test/email-to-address'

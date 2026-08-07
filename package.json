@@ -1,10 +1,10 @@
 {
   "name": "log-subscriber",
   "author": "David Bowland",
-  "description": "Lambda that subscribes to CloudWatch Log Group errors and forwards to SMS",
+  "description": "Lambda that subscribes to CloudWatch Log Group errors and forwards to email",
   "version": "1.16.0",
   "engines": {
-    "node": "^22.0.0"
+    "node": "^24.0.0"
   },
   "repository": {
     "type": "git",
@@ -25,7 +25,7 @@
     "update": "ncu --doctor --target minor --upgrade && npm audit fix --audit-level=none && npm run test && npm dedupe"
   },
   "dependencies": {
-    "aws-xray-sdk-core": "^3.10.3",
+    "@aws-sdk/client-ssm": "^3.1101.0",
     "axios": "^1.10.0",
     "axios-retry": "^3.9.1",
     "core-js": "^3.43.0",

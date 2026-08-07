@@ -11,8 +11,22 @@ export const getDataFromRecord = (event: CloudWatchLogsEvent): Promise<CloudWatc
   )
 }
 
-export const extractLevelFromData = (data: CloudWatchLogsDecodedData): string =>
-  data.logEvents[0].extractedFields?.level as string
+/* Log events */
 
-export const extractMessageFromData = (data: CloudWatchLogsDecodedData): string =>
-  data.logEvents[0].extractedFields?.message as string
+export interface ExtractedLogEvent {
+  id: string
+  level: string
+  message: string
+  timestamp: number
+}
+
+// extractedFields is only populated when the subscription filter names fields, and CloudWatch's own
+// CONTROL_MESSAGE health checks (emitted whenever a subscription filter is created) carry none at
+// all. Falling back to the raw message keeps those from rendering as the literal string "undefined".
+export const extractEventsFromData = (data: CloudWatchLogsDecodedData): ExtractedLogEvent[] =>
+  data.logEvents.map((event) => ({
+    id: event.id,
+    level: (event.extractedFields?.level as string) ?? 'ERROR',
+    message: (event.extractedFields?.message as string) ?? event.message ?? '',
+    timestamp: event.timestamp,
+  }))

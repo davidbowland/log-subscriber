@@ -66,6 +66,34 @@ Both [Prettier](https://prettier.io/) and [ESLint](https://eslint.org/) are exec
 npm run lint
 ```
 
+### Testing the Deployed Subscriber
+
+The stack includes a test emitter lambda whose only job is to write one `ERROR` line. Its log group is
+subscribed to the subscriber, so invoking it exercises the whole alert path — subscription filter,
+gzipped envelope, rendering, and delivery through `emails-queue-api`.
+
+Invoke it from the AWS console:
+
+| Environment | Function                      |
+| ----------- | ----------------------------- |
+| prod        | `log-subscriber-emitter`      |
+| test        | `log-subscriber-test-emitter` |
+
+The invoke returns the message it logged, e.g. `log-subscriber test alert emitted at 2026-08-07T14:32:07.412Z`.
+That same string appears in the subject of the alert email, which should arrive within a minute or two.
+Each invocation embeds a fresh timestamp so successive tests do not thread together in the mail client.
+
+Whatever payload you pass is appended to that log line, which is how you force particular content
+into the alert — a multi-line stack trace to check `pre-wrap` rendering, a very long string to check
+truncation at 4000 characters, or `<script>` to check HTML escaping:
+
+```json
+"Error: boom\n    at handler (/var/task/index.js:1:1)\n    at Runtime.handleOnceNonStreaming"
+```
+
+If no email arrives, the subscriber's own log group (`/aws/lambda/log-subscriber`) records what it
+received and why it stopped.
+
 ### Deploying to Production
 
 When a pull request is merged into `master`, the lambda code is transpiled to commonjs and then deployed. Feature branches are also deployed but are given unique resources.

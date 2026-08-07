@@ -13,21 +13,21 @@ Parameters:
       - prod
       - test
     Description: Environment for deploy
-  PhoneNumber:
-    Type: String
-    Description: Phone number to receive error messages
-  SmsApiKey:
-    Type: String
-    Description: API key for sms-queue-api
 
 Mappings:
   EnvironmentMap:
     prod:
+      emailApiKeyPath: /log-subscriber/email-api-key
+      emailFromAddressPath: /log-subscriber/email-from-address
+      emailToAddressPath: /log-subscriber/email-to-address
+      emailsQueueApiBaseUrl: https://emails-queue-api.dbowland.com
       project: log-subscriber
-      smsApiUrl: https://sms-queue-api.dbowland.com/v1
     test:
+      emailApiKeyPath: /log-subscriber-test/email-api-key
+      emailFromAddressPath: /log-subscriber-test/email-from-address
+      emailToAddressPath: /log-subscriber-test/email-to-address
+      emailsQueueApiBaseUrl: https://emails-queue-api.bowland.link
       project: log-subscriber-test
-      smsApiUrl: https://sms-queue-api.bowland.link/v1
 
 Resources:
   # Lambda
@@ -41,21 +41,36 @@ Resources:
       Handler: src/handlers/log-group-processor.logGroupProcessorHandler
       Environment:
         Variables:
-          SMS_API_KEY: !Ref SmsApiKey
-          SMS_API_URL: !FindInMap [EnvironmentMap, !Ref Environment, smsApiUrl]
-          SMS_TO_PHONE_NUMBER: !Ref PhoneNumber
+          EMAILS_QUEUE_API_BASE_URL: !FindInMap [EnvironmentMap, !Ref Environment, emailsQueueApiBaseUrl]
+          SSM_EMAIL_API_KEY_PATH: !FindInMap [EnvironmentMap, !Ref Environment, emailApiKeyPath]
+          SSM_EMAIL_FROM_ADDRESS_PATH: !FindInMap [EnvironmentMap, !Ref Environment, emailFromAddressPath]
+          SSM_EMAIL_TO_ADDRESS_PATH: !FindInMap [EnvironmentMap, !Ref Environment, emailToAddressPath]
       FunctionName: !FindInMap [EnvironmentMap, !Ref Environment, project]
       MemorySize: 128
       Policies:
         # Give Lambda basic execution Permission
         - AWSLambdaBasicExecutionRole
-      Runtime: nodejs22.x
+        - Version: 2012-10-17
+          Statement:
+            - Action:
+                - 'ssm:GetParameter'
+              Effect: Allow
+              Resource:
+                - !Sub
+                  - 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter${Path}'
+                  - Path: !FindInMap [EnvironmentMap, !Ref Environment, emailApiKeyPath]
+                - !Sub
+                  - 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter${Path}'
+                  - Path: !FindInMap [EnvironmentMap, !Ref Environment, emailFromAddressPath]
+                - !Sub
+                  - 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter${Path}'
+                  - Path: !FindInMap [EnvironmentMap, !Ref Environment, emailToAddressPath]
+      Runtime: nodejs24.x
       Tags:
         'created-by': 'log-subscriber'
         'created-for': 'dbowland'
         'environment': !Ref Environment
       Timeout: 60
-      Tracing: Active
     Metadata:
       BuildMethod: esbuild
       BuildProperties:
@@ -74,11 +89,48 @@ Resources:
       SourceAccount: !Ref AWS::AccountId
       SourceArn: !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:*:*'
 
+  # Test emitter
+  #
+  # Deliberately has no events: it exists to be invoked by hand from the console, so that the
+  # deployed alert path can be verified without waiting for a real service to fail. It is created in
+  # prod as well as test because prod has its own SSM parameters and its own emails-queue-api, and a
+  # test-only emitter can verify neither.
+
+  TestEmitter:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: Emits a single error log to verify the subscriber end to end
+      Architectures:
+        - x86_64
+      Handler: src/handlers/test-emitter.testEmitterHandler
+      FunctionName: !Sub
+        - '${Project}-emitter'
+        - Project: !FindInMap [EnvironmentMap, !Ref Environment, project]
+      MemorySize: 128
+      Policies:
+        # Give Lambda basic execution Permission
+        - AWSLambdaBasicExecutionRole
+      Runtime: nodejs24.x
+      Tags:
+        'created-by': 'log-subscriber'
+        'created-for': 'dbowland'
+        'environment': !Ref Environment
+      Timeout: 10
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: true
+        Target: 'es2020'
+        Sourcemap: true
+        EntryPoints:
+          - src/handlers/test-emitter.ts
+
   # CloudWatch
 
+  # Intentionally not subscribed: subscribing the subscriber's own log group would let an alert
+  # about a failed alert generate another alert.
   LogGroupLambdaLogGroup:
     Type: AWS::Logs::LogGroup
-    DependsOn: [LogGroupSubscriber]
     Properties:
       LogGroupName: !Sub /aws/lambda/${LogGroupSubscriber}
       RetentionInDays: 30
@@ -89,3 +141,28 @@ Resources:
           Value: 'dbowland'
         - Key: 'environment'
           Value: !Ref Environment
+
+  TestEmitterLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${TestEmitter}
+      RetentionInDays: 30
+      Tags:
+        - Key: 'created-by'
+          Value: 'log-subscriber'
+        - Key: 'created-for'
+          Value: 'dbowland'
+        - Key: 'environment'
+          Value: !Ref Environment
+
+  # The filter pattern is copied verbatim from the subscribing repos (scheduler-service, jokes-api,
+  # et al.) so this tests the real configuration rather than a bespoke one. DependsOn is required:
+  # CloudWatchLambdaInvokePermission already covers log-group:*:*, but nothing here references it, so
+  # without the explicit edge CloudFormation may create the filter first and fail.
+  TestEmitterLogGroupSubscription:
+    Type: AWS::Logs::SubscriptionFilter
+    DependsOn: [CloudWatchLambdaInvokePermission]
+    Properties:
+      DestinationArn: !GetAtt LogGroupSubscriber.Arn
+      FilterPattern: '[timestamp, uuid, level="ERROR", message]'
+      LogGroupName: !Ref TestEmitterLogGroup
