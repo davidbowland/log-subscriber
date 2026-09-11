@@ -2,6 +2,8 @@
 
 This is a lambda meant to subscribe to CloudWatch Log Groups.
 
+**This project deploys to two regions: `us-east-1` and `us-east-2`.** It is the only repo in the fleet that does. Both the pipeline and `scripts/deploy.sh` run the deploy twice, once per region, against per-region artifact buckets. A change is not fully released until both have succeeded, and the `region` in the credentials boilerplate below only sets a default for ad-hoc CLI calls — it does not determine where this project deploys.
+
 ## Setup
 
 The `developer` role is required to deploy this project.
